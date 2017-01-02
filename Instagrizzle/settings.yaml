@@ -1,0 +1,5 @@
+fields:
+  username:
+    type: text
+  cache_length:
+    type: text
