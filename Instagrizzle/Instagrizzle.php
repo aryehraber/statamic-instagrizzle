@@ -27,7 +27,7 @@ class Instagrizzle
         // Grab media from cache if available
         if (! $media = $this->cache->get($this->username)) {
             // Otherwise, scrape it real good
-            $media = $this->scrape();
+            $media = $this->scrape()->toArray();
             // Save it to the cache for next time (defaults to 1 hour)
             $this->cache->put($this->username, $media, $this->getConfig('cache_length', 60));
         }
