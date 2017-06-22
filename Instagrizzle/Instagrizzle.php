@@ -23,11 +23,11 @@ class Instagrizzle
     }
 
     public function getMedia()
-    {        
+    {
         // Grab media from cache if available
         if (! $media = $this->cache->get($this->username)) {
-            // Otherwise, scrape it real good
-            $media = $this->scrape()->toArray();
+            // Otherwise, get the feed from Instagram
+            $media = $this->getFeed()->toArray();
             // Save it to the cache for next time (defaults to 1 hour)
             $this->cache->put($this->username, $media, $this->getConfig('cache_length', 60));
         }
@@ -43,22 +43,15 @@ class Instagrizzle
         return $media;
     }
 
-    public function scrape()
+    private function getFeed()
     {
-        $source = file_get_contents('http://instagram.com/' . $this->username);
-        $shards = explode('window._sharedData = ', $source);
-        $json_response = explode(';</script>', $shards[1]);
-        $response_array = json_decode($json_response[0], TRUE);
-        $nodes = array_get($response_array, 'entry_data:ProfilePage:0:user:media:nodes');
+        $feed = json_decode(file_get_contents("https://www.instagram.com/{$this->username}/media"), true);
 
-        return collect($nodes)->map(function ($node) {
-            $url = 'https://instagram.com/p/' . $node['code'];
-            $image = $node['display_src'];
-
-            return $node + [
-                'url' => $url,
-                'link' => $url,
-                'image' => $image
+        return collect($feed['items'])->map(function ($item) {
+            return $item + [
+                'url' => $item['link'],
+                'link' => $item['link'],
+                'image' => $item['images']['standard_resolution']['url'],
             ];
         });
     }
