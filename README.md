@@ -1,10 +1,6 @@
 # Instagrizzle
 
-**Scrape media from public Instagram feeds, without the need for the API.**
-
-This is the upgraded Statamic v2 version of Jack McDade's [Instagrizzle](https://github.com/jackmcdade/instagrizzle).
-
-_You probably shouldn't use this on an important website because it breaks every time Instagram changes their markup._
+**Fetch media from public Instagram feeds.**
 
 ## Installation
 
@@ -16,7 +12,7 @@ Full example
 ```html
 {{ instagrizzle username="aryehraber" limit="5" offset="1" }}
     <a href="{{ link }}">
-        <img src="{{ image }}" alt="{{ caption }}">
+        <img src="{{ image }}" alt="{{ caption:title }}">
     </a>
 {{ /instagrizzle }}
 ```
