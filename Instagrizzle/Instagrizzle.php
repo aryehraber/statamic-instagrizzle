@@ -50,7 +50,6 @@ class Instagrizzle
         return collect($feed['items'])->map(function ($item) {
             return $item + [
                 'url' => $item['link'],
-                'link' => $item['link'],
                 'image' => $item['images']['standard_resolution']['url'],
             ];
         });
