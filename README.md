@@ -2,6 +2,8 @@
 
 **Fetch media from public Instagram feeds.**
 
+This is the upgraded (and improved) v2 version of Jack McDade's [Instagrizzle](https://github.com/jackmcdade/instagrizzle).
+
 ## Installation
 
 Simply copy the `Instagrizzle` folder into `site/addons/`. That's it!
