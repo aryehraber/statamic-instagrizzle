@@ -6,8 +6,6 @@ use Statamic\Extend\Tags;
 
 class InstagrizzleTags extends Tags
 {
-    public $username;
-
     public function __call($method, $args)
     {
         if ($name = explode(':', $this->tag)[1]) {
@@ -15,14 +13,9 @@ class InstagrizzleTags extends Tags
         }
     }
 
-    public function init()
-    {
-        $this->username = $this->getParam('username', $this->getConfig('username'));
-    }
-
     public function index($username = null)
     {   
-        $username = $username ?: $this->username;
+        $username = $username ?: $this->get('username');
         $limit = $this->getParamInt('limit');
         $offset = $this->getParamInt('offset');
 
@@ -33,7 +26,7 @@ class InstagrizzleTags extends Tags
 
     public function debug()
     {
-        $instagrizzle = new Instagrizzle($this->username);
+        $instagrizzle = new Instagrizzle($this->get('username'));
 
         dd($instagrizzle->getMedia());
     }
