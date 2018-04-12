@@ -55,11 +55,11 @@ class Instagrizzle
             $media = $profile['edge_owner_to_timeline_media']['edges'];
 
             return collect($media)->map(function ($item) {
-                return [
+                return array_merge($item['node'], [
                     'link' => 'https://www.instagram.com/p/' . $item['node']['shortcode'],
                     'thumbnail' => $item['node']['thumbnail_src'],
                     'image' => $item['node']['display_url'],
-                ];
+                ]);
             });
         } catch (\Exception $e) {
         }
