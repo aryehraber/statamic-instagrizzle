@@ -14,7 +14,7 @@ class Instagrizzle
 
     public function __construct($username, $limit = false, $offset = 0)
     {
-        if (! $this->username = $username) {
+        if (!$this->username = $username) {
             throw new \Exception('Instagrizzle: no username found.');
         }
 
@@ -25,7 +25,7 @@ class Instagrizzle
     public function getMedia()
     {
         // Grab media from cache if available
-        if (! $media = $this->cache->get($this->username)) {
+        if (!$media = $this->cache->get($this->username)) {
             // Otherwise, get the feed from Instagram
             $media = $this->getFeed()->toArray();
             // Save it to the cache for next time (defaults to 1 hour)
@@ -45,13 +45,25 @@ class Instagrizzle
 
     private function getFeed()
     {
-        $feed = json_decode(file_get_contents("https://www.instagram.com/{$this->username}/media"), true);
+        $html = file_get_contents("https://www.instagram.com/{$this->username}");
+        $re = '/window\._sharedData = {(.*)}/';
 
-        return collect($feed['items'])->map(function ($item) {
-            return $item + [
-                'url' => $item['link'],
-                'image' => $item['images']['standard_resolution']['url'],
-            ];
-        });
+        try {
+            preg_match_all($re, $html, $matches, PREG_SET_ORDER, 0);
+            $json = json_decode('{' . $matches[0][1] . '}', true);
+            $profile = $json['entry_data']['ProfilePage'][0]['graphql']['user'];
+            $media = $profile['edge_owner_to_timeline_media']['edges'];
+
+            return collect($media)->map(function ($item) {
+                return [
+                    'link' => 'https://www.instagram.com/p/' . $item['node']['shortcode'],
+                    'thumbnail' => $item['node']['thumbnail_src'],
+                    'image' => $item['node']['display_url'],
+                ];
+            });
+        } catch (\Exception $e) {
+        }
+
+        return collect();
     }
 }
