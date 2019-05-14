@@ -45,10 +45,10 @@ class Instagrizzle
 
     private function getFeed()
     {
-        $html = file_get_contents("https://www.instagram.com/{$this->username}");
-        $re = '/window\._sharedData = {(.*)}/';
-
         try {
+            $html = file_get_contents("https://www.instagram.com/{$this->username}");
+            $re = '/window\._sharedData = {(.*)}/';
+
             preg_match_all($re, $html, $matches, PREG_SET_ORDER, 0);
             $json = json_decode('{' . $matches[0][1] . '}', true);
             $profile = $json['entry_data']['ProfilePage'][0]['graphql']['user'];
