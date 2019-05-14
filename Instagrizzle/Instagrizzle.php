@@ -26,8 +26,13 @@ class Instagrizzle
     {
         // Grab media from cache if available
         if (!$media = $this->cache->get($this->username)) {
-            // Otherwise, get the feed from Instagram
-            $media = $this->getFeed()->toArray();
+            try {
+                // Otherwise, get the feed from Instagram
+                $media = $this->getFeed()->toArray();
+            } catch (\Exception $exception) {
+                return [];
+            }
+
             // Save it to the cache for next time (defaults to 1 hour)
             $this->cache->put($this->username, $media, $this->getConfig('cache_length', 60));
         }
@@ -48,22 +53,17 @@ class Instagrizzle
         $html = file_get_contents("https://www.instagram.com/{$this->username}");
         $re = '/window\._sharedData = {(.*)}/';
 
-        try {
-            preg_match_all($re, $html, $matches, PREG_SET_ORDER, 0);
-            $json = json_decode('{' . $matches[0][1] . '}', true);
-            $profile = $json['entry_data']['ProfilePage'][0]['graphql']['user'];
-            $media = $profile['edge_owner_to_timeline_media']['edges'];
+        preg_match_all($re, $html, $matches, PREG_SET_ORDER, 0);
+        $json = json_decode('{' . $matches[0][1] . '}', true);
+        $profile = $json['entry_data']['ProfilePage'][0]['graphql']['user'];
+        $media = $profile['edge_owner_to_timeline_media']['edges'];
 
-            return collect($media)->map(function ($item) {
-                return array_merge($item['node'], [
-                    'link' => 'https://www.instagram.com/p/' . $item['node']['shortcode'],
-                    'thumbnail' => $item['node']['thumbnail_src'],
-                    'image' => $item['node']['display_url'],
-                ]);
-            });
-        } catch (\Exception $e) {
-        }
-
-        return collect();
+        return collect($media)->map(function ($item) {
+            return array_merge($item['node'], [
+                'link' => 'https://www.instagram.com/p/' . $item['node']['shortcode'],
+                'thumbnail' => $item['node']['thumbnail_src'],
+                'image' => $item['node']['display_url'],
+            ]);
+        });
     }
 }
